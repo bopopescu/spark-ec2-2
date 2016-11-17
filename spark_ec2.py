@@ -490,7 +490,14 @@ def get_spark_ami(opts):
     ami_path = "%s/%s/%s" % (ami_prefix, opts.region, instance_type)
     reader = codecs.getreader("ascii")
     try:
-        ami = reader(urlopen(ami_path)).read().strip()
+        # Massive hack; InnitInc/spark-ec2 repo is not publicly available
+        #  We should either:
+        #    1. Inject access token to access remotely (I dont know if it works with raw.github access)
+        #    2. Or create a map of available options in the code and read from memory instead of doing web call at all
+        if opts.region == "us-west-2" and instance_type == "hvm":
+            ami = "ami-ae6e0d9e"
+        else:
+            ami = reader(urlopen(ami_path)).read().strip()
     except:
         print("Could not resolve AMI at: " + ami_path, file=stderr)
         sys.exit(1)
