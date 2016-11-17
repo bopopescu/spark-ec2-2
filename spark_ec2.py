@@ -108,7 +108,7 @@ DEFAULT_SPARK_VERSION = SPARK_EC2_VERSION
 DEFAULT_SPARK_GITHUB_REPO = "https://github.com/apache/spark"
 
 # Default location to get the spark-ec2 scripts (and ami-list) from
-DEFAULT_SPARK_EC2_GITHUB_REPO = "https://github.com/amplab/spark-ec2"
+DEFAULT_SPARK_EC2_GITHUB_REPO = "https://github.com/innitinc/spark-ec2"
 DEFAULT_SPARK_EC2_BRANCH = "branch-2.0"
 
 
@@ -1129,6 +1129,7 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
 
     # Create a temp directory in which we will place all the files to be
     # deployed after we substitue template parameters in them
+
     tmp_dir = tempfile.mkdtemp()
     for path, dirs, files in os.walk(root_dir):
         if path.find(".svn") == -1:
@@ -1147,6 +1148,7 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
                                 text = text.replace("{{" + key + "}}", template_vars[key])
                             dest.write(text)
                             dest.close()
+    print("tmp_dir is {}".format(tmp_dir))
     # rsync the whole directory over to the master machine
     command = [
         'rsync', '-rv',
@@ -1154,6 +1156,7 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
         "%s/" % tmp_dir,
         "%s@%s:/" % (opts.user, active_master)
     ]
+    print("command is {}".format(command))
     subprocess.check_call(command)
     # Remove the temp directory we created above
     shutil.rmtree(tmp_dir)
